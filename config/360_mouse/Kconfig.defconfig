@@ -1,0 +1,6 @@
+if SHIELD_360_MOUSE
+
+config ZMK_KEYBOARD_NAME
+    default "360 Mouse"
+
+endif

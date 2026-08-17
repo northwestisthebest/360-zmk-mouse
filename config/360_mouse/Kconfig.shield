@@ -1,0 +1,2 @@
+config SHIELD_360_MOUSE
+    def_bool $(shields_list_contains,360_mouse)
