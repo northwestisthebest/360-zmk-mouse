@@ -6,6 +6,10 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: badjeff
       url-base: https://github.com/badjeff
+    - name: te9no
+      url-base: https://github.com/te9no
+    - name: northwestisthebest
+      url-base: https://github.com/northwestisthebest
   projects:
     - name: zephyr
       remote: zmkfirmware
@@ -46,6 +50,12 @@ manifest:
       remote: zmkfirmware
     - name: zmk-pmw3610-driver
       remote: badjeff
+      revision: main
+    - name: zmk-analog-input-driver
+      remote: northwestisthebest
+      revision: 360-mouse
+    - name: zmk-input-processor-keybind
+      remote: te9no
       revision: main
   self:
     west-commands: scripts/west-commands.yml
