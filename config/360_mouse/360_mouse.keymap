@@ -1,12 +1,68 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/mouse.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h>
 
 / {
+    behaviors {
+        bt_enter: bt_enter {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <1000>;
+            bindings = <&to>, <&to>;
+        };
+    };
+
+    macros {
+        m_bt0: m_bt0 {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&bt BT_SEL 0>, <&to 0>;
+        };
+        m_bt1: m_bt1 {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&bt BT_SEL 1>, <&to 0>;
+        };
+        m_bt2: m_bt2 {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&bt BT_SEL 2>, <&to 0>;
+        };
+        m_btclr: m_btclr {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&bt BT_CLR>, <&to 0>;
+        };
+        m_out: m_out {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&out OUT_TOG>, <&to 0>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        combo_bt_layer {
+            timeout-ms = <300>;
+            key-positions = <3 5>;      /* MB4 + space */
+            bindings = <&bt_enter 1 0>;
+            layers = <0>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
+
         default_layer {
             bindings = <&mkp LCLK &mkp MCLK &mkp RCLK &mkp MB4 &mkp MB5 &kp SPACE>;
+        };
+
+        bt_layer {
+            bindings = <&m_bt0 &m_bt1 &m_bt2 &m_btclr &bootloader &m_out>;
         };
     };
 };

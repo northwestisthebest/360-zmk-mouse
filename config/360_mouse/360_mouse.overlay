@@ -55,6 +55,7 @@
         zmk,kscan = &kscan0;
         zmk,matrix_transform = &default_transform;
         zmk,physical-layout = &default_layout;
+        zmk,battery = &vbatt;
     };
 
     kscan0: kscan {
@@ -98,24 +99,24 @@
 / {
     anin0: analog_input_0 {
         compatible = "zmk,analog-input";
-        sampling-hz = <100>;
+        sampling-hz = <250>;
         x-ch {
             io-channels = <&adc 0>;
-            mv-mid = <1566>;
-            mv-min-max = <1550>;
-            mv-deadzone = <40>;
+            mv-mid = <1563>;//1563
+            mv-min-max = <1450>;//1550
+            mv-deadzone = <200>;
             scale-multiplier = <1>;
-            scale-divisor = <4000>;
+            scale-divisor = <30000>;
             input-code = <INPUT_REL_HWHEEL>;   /* x-ch */
             evt-type = <INPUT_EV_REL>;
         };
         y-ch {
             io-channels = <&adc 5>;
-            mv-mid = <1629>;
-            mv-min-max = <1600>;
-            mv-deadzone = <40>;
+            mv-mid = <1624>;
+            mv-min-max = <1400>;//1600
+            mv-deadzone = <200>;
             scale-multiplier = <1>;
-            scale-divisor = <4000>;
+            scale-divisor = <30000>;
             input-code = <INPUT_REL_WHEEL>;    /* y-ch */
             evt-type = <INPUT_EV_REL>;
         };
@@ -124,5 +125,39 @@
     anin0_listener: anin0_listener {
         compatible = "zmk,input-listener";
         device = <&anin0>;
+    };
+};
+
+/ {
+    vbatt: vbatt {
+        compatible = "zmk,battery-nrf-vddh";
+    };
+};
+
+/* --- Bootloader entry via GPREGRET boot retention --- */
+&gpregret1 {
+    adafruit_boot_retention: retention@0 {
+        compatible = "zephyr,retention";
+        status = "okay";
+        reg = <0x0 0x1>;
+    };
+};
+
+/ {
+    magic_mapper {
+        compatible = "zmk,bootmode-to-magic-mapper";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        boot_retention: retention@0 {
+            compatible = "zephyr,retention";
+            status = "okay";
+            reg = <0x0 0x1>;
+        };
+    };
+
+    chosen {
+        zephyr,boot-mode = &boot_retention;
+        zmk,magic-boot-mode = &adafruit_boot_retention;
     };
 };
