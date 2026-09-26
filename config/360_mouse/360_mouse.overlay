@@ -32,7 +32,7 @@
         compatible = "pixart,pmw3610-alt";
         reg = <0>;
         spi-max-frequency = <250000>;
-        irq-gpios = <&gpio0 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        irq-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         cpi = <600>;
         evt-type = <INPUT_EV_REL>;
         x-input-code = <INPUT_REL_Y>;
@@ -159,5 +159,15 @@
     chosen {
         zephyr,boot-mode = &boot_retention;
         zmk,magic-boot-mode = &adafruit_boot_retention;
+    };
+};
+
+/ {
+    led_indicator: led_indicator {
+        compatible = "zmk,led-indicator";
+        gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;   /* P1.00 */
+        indicate-layer = <1>;
+        activity-device = <&trackball>;
+        activity-hold-ms = <60>;
     };
 };

@@ -57,5 +57,8 @@ manifest:
     - name: zmk-input-processor-keybind
       remote: te9no
       revision: main
+    - name: zmk-led-indicator
+      remote: northwestisthebest
+      revision: main
   self:
     west-commands: scripts/west-commands.yml

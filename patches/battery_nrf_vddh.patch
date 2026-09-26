@@ -1,0 +1,13 @@
+diff --git a/app/module/drivers/sensor/battery/battery_nrf_vddh.c b/app/module/drivers/sensor/battery/battery_nrf_vddh.c
+index 32c7c61e..634c6519 100644
+--- a/app/module/drivers/sensor/battery/battery_nrf_vddh.c
++++ b/app/module/drivers/sensor/battery/battery_nrf_vddh.c
+@@ -87,7 +87,7 @@ static int vddh_init(const struct device *dev) {
+         .channels = BIT(0),
+         .buffer = &drv_data->value.adc_raw,
+         .buffer_size = sizeof(drv_data->value.adc_raw),
+-        .oversampling = 4,
++        .oversampling = 0,
+         .calibrate = true,
+     };
+ 
