@@ -47,7 +47,7 @@
         compatible = "zmk,combos";
 
         combo_bt_layer {
-            timeout-ms = <300>;
+            timeout-ms = <800>;
             key-positions = <3 5>;      /* MB4 + space */
             bindings = <&bt_enter 1 0>;
             layers = <0>;
