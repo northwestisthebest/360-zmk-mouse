@@ -51,10 +51,13 @@
         device = <&trackball>;
     };
 
+#include <dt-bindings/zmk/keys.h>   /* after the matrix map: keys.h redefines RC() */
+
     /* io-channels, mv-mid and invert set per variant via &x_ch / &y_ch */
     anin0: analog_input_0 {
         compatible = "zmk,analog-input";
         sampling-hz = <250>;
+        game-layer = <2>;          /* joystick sends WASD while layer 2 is on */
         x_ch: x-ch {
             mv-min-max = <1450>;
             mv-deadzone = <200>;
@@ -62,6 +65,8 @@
             scale-divisor = <30000>;
             input-code = <INPUT_REL_HWHEEL>;
             evt-type = <INPUT_EV_REL>;
+            game-key-pos = <D>;    /* same direction as scrolling right */
+            game-key-neg = <A>;
         };
         y_ch: y-ch {
             mv-min-max = <1400>;
@@ -70,6 +75,8 @@
             scale-divisor = <30000>;
             input-code = <INPUT_REL_WHEEL>;
             evt-type = <INPUT_EV_REL>;
+            game-key-pos = <W>;    /* same direction as scrolling up */
+            game-key-neg = <S>;
         };
     };
 
@@ -98,6 +105,7 @@
     led_indicator: led_indicator {
         compatible = "zmk,led-indicator";
         indicate-layer = <1>;
+        blink-layers = <2 3>;      /* into game: 2 blinks, into RMB lock: 3; out: 1 */
         activity-device = <&trackball>;
         activity-hold-ms = <60>;
     };
