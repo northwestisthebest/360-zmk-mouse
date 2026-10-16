@@ -1,6 +1,7 @@
 /*
  * 360 Mouse v1 - hand-wired legacy build.
- * Sensor rotated 90 deg, pots on the 3.3 V rail (no power gating).
+ * Sensor rotated 90 deg. Pot supply: move the joystick VCC wire from 3.3 V
+ * to D10 (P0.09) for power gating; works unmodified too.
  */
 
 #include "360_mouse.dtsi"

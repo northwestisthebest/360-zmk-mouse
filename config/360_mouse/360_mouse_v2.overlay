@@ -1,26 +1,31 @@
 /*
- * 360 Mouse v2 - custom PCB.
- * Sensor rotated 180 deg relative to v1, pots powered from a GPIO (gated).
+ * 360 Mouse v2 - single-sided PCB, nRF board mounted face-down.
+ * Pot supply gated from P0.09 (JPWR) - set in 360_mouse.dtsi for all variants.
  *
- * TODO: replace every pin marked TODO with the v2 PCB netlist.
+ * Needs both driver-fork commits on branch 360-mouse:
+ *   - "Optional pot power gating (power-gpios), mv-top DT property"
+ *   - "ADC channel id from list index, so AIN7 works alongside VDDH"
+ *
+ * Check on the first board (marked VERIFY below):
+ *   - sensor direction: set invert-x / invert-y here, never via Kconfig
+ *   - joystick: which pot drives which scroll axis, and each direction
  */
 
 #include "360_mouse.dtsi"
-#include <zephyr/dt-bindings/gpio/nordic-nrf-gpio.h>
 
 &pinctrl {
     spi1_default: spi1_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,    /* TODO */
-                <NRF_PSEL(SPIM_MOSI, 0, 10)>,       /* TODO */
-                <NRF_PSEL(SPIM_MISO, 1, 11)>;       /* TODO */
+            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,     /* P1.13 */
+                <NRF_PSEL(SPIM_MOSI, 0, 10)>,        /* P0.10 */
+                <NRF_PSEL(SPIM_MISO, 1, 15)>;        /* P1.15 (v1: P1.11) */
         };
     };
     spi1_sleep: spi1_sleep {
         group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,    /* TODO, same as above */
+            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,
                 <NRF_PSEL(SPIM_MOSI, 0, 10)>,
-                <NRF_PSEL(SPIM_MISO, 1, 11)>;
+                <NRF_PSEL(SPIM_MISO, 1, 15)>;
             low-power-enable;
         };
     };
@@ -32,19 +37,18 @@
     pinctrl-0 = <&spi1_default>;
     pinctrl-1 = <&spi1_sleep>;
     pinctrl-names = "default", "sleep";
-    cs-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;                          /* TODO */
+    cs-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;           /* NCS P1.06 (v1: P0.20) */
 
     trackball: trackball@0 {
         status = "okay";
         compatible = "pixart,pmw3610-alt";
         reg = <0>;
-        spi-max-frequency = <2000000>;
-        irq-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;    /* TODO */
+        spi-max-frequency = <2000000>;               /* drop to 250000 if reads are flaky */
+        irq-gpios = <&gpio1 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;   /* MOTION P1.11 (v1: P1.15) */
         evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_Y>;
+        x-input-code = <INPUT_REL_Y>;                /* VERIFY: sensor turned 90 deg */
         y-input-code = <INPUT_REL_X>;
-        /* 180 deg from v1 negates both axes: v1 had invert-x only */
-        invert-y;
+        /* VERIFY: add invert-x; and/or invert-y; as needed */
         cpi = <1600>;
         force-awake;
         force-awake-4ms-mode;
@@ -52,33 +56,32 @@
 };
 
 &kscan0 {
-    input-gpios =                                               /* TODO all */
-        <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* left   */
-        <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* middle */
-        <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* right  */
-        <&gpio0 31 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB4    */
-        <&gpio0 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB5    */
-        <&gpio1 4  (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;  /* space  */
+    input-gpios =
+        <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* left   P0.22 */
+        <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* middle P0.17 */
+        <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* right  P0.20 */
+        <&gpio0 2  (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB4    P0.02 */
+        <&gpio0 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB5    P0.11 */
+        <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;  /* space  P0.24 */
 };
 
-&anin0 {
-    power-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_H0H1)>;  /* TODO */
-    power-settle-us = <50>;
-    mv-top = <3300>;            /* TODO: measure on the first v2 board */
-};
+/* pot power gating (P0.09) and mv-top come from 360_mouse.dtsi */
 
+/* PCB notes: X pot -> JY line (AIN7), Y pot -> JX line (AIN5),
+   module rotated 180 deg. If horizontal and vertical scroll come out
+   swapped, exchange the two io-channels lines. */
 &x_ch {
-    io-channels = <&adc 0>;     /* TODO: AIN number, not P-number */
-    mv-mid = <1563>;            /* TODO: rough value is fine, calibrated at boot */
-    invert;                     /* TODO: check direction */
+    io-channels = <&adc 7>;     /* JY line, P0.31 / AIN7 - VERIFY */
+    mv-mid = <1563>;            /* rough reference only; calibrated at boot */
+    /* VERIFY direction: add invert; if horizontal scroll is reversed */
 };
 
 &y_ch {
-    io-channels = <&adc 5>;     /* TODO */
+    io-channels = <&adc 5>;     /* JX line, P0.29 / AIN5 - VERIFY */
     mv-mid = <1624>;
-    invert;                     /* TODO: check direction */
+    /* VERIFY direction: add invert; if vertical scroll is reversed */
 };
 
 &led_indicator {
-    gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;   /* TODO */
+    gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;             /* P1.00 */
 };

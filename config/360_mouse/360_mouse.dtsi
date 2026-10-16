@@ -4,6 +4,7 @@
  */
 
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/gpio/nordic-nrf-gpio.h>
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>
 
@@ -57,6 +58,11 @@
     anin0: analog_input_0 {
         compatible = "zmk,analog-input";
         sampling-hz = <250>;
+        /* Pot supply from P0.09 (D10), high only while sampling. Every
+           variant uses the same pin. A mouse whose pots are still on 3.3 V
+           just toggles an unconnected pin - harmless. */
+        power-gpios = <&gpio0 9 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_H0H1)>;
+        mv-top = <3200>;           /* re-measure on a gated mouse, see README */
         game-layer = <2>;          /* joystick sends WASD while layer 2 is on */
         x_ch: x-ch {
             mv-min-max = <1450>;
