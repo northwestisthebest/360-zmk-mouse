@@ -1,0 +1,84 @@
+/*
+ * 360 Mouse v2 - custom PCB.
+ * Sensor rotated 180 deg relative to v1, pots powered from a GPIO (gated).
+ *
+ * TODO: replace every pin marked TODO with the v2 PCB netlist.
+ */
+
+#include "360_mouse.dtsi"
+#include <zephyr/dt-bindings/gpio/nordic-nrf-gpio.h>
+
+&pinctrl {
+    spi1_default: spi1_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,    /* TODO */
+                <NRF_PSEL(SPIM_MOSI, 0, 10)>,       /* TODO */
+                <NRF_PSEL(SPIM_MISO, 1, 11)>;       /* TODO */
+        };
+    };
+    spi1_sleep: spi1_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,    /* TODO, same as above */
+                <NRF_PSEL(SPIM_MOSI, 0, 10)>,
+                <NRF_PSEL(SPIM_MISO, 1, 11)>;
+            low-power-enable;
+        };
+    };
+};
+
+&spi1 {
+    status = "okay";
+    compatible = "nordic,nrf-spim";
+    pinctrl-0 = <&spi1_default>;
+    pinctrl-1 = <&spi1_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;                          /* TODO */
+
+    trackball: trackball@0 {
+        status = "okay";
+        compatible = "pixart,pmw3610-alt";
+        reg = <0>;
+        spi-max-frequency = <2000000>;
+        irq-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;    /* TODO */
+        evt-type = <INPUT_EV_REL>;
+        x-input-code = <INPUT_REL_Y>;
+        y-input-code = <INPUT_REL_X>;
+        /* 180 deg from v1 negates both axes: v1 had invert-x only */
+        invert-y;
+        cpi = <1600>;
+        force-awake;
+        force-awake-4ms-mode;
+    };
+};
+
+&kscan0 {
+    input-gpios =                                               /* TODO all */
+        <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* left   */
+        <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* middle */
+        <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* right  */
+        <&gpio0 31 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB4    */
+        <&gpio0 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,  /* MB5    */
+        <&gpio1 4  (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;  /* space  */
+};
+
+&anin0 {
+    power-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_H0H1)>;  /* TODO */
+    power-settle-us = <50>;
+    mv-top = <3300>;            /* TODO: measure on the first v2 board */
+};
+
+&x_ch {
+    io-channels = <&adc 0>;     /* TODO: AIN number, not P-number */
+    mv-mid = <1563>;            /* TODO: rough value is fine, calibrated at boot */
+    invert;                     /* TODO: check direction */
+};
+
+&y_ch {
+    io-channels = <&adc 5>;     /* TODO */
+    mv-mid = <1624>;
+    invert;                     /* TODO: check direction */
+};
+
+&led_indicator {
+    gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;   /* TODO */
+};

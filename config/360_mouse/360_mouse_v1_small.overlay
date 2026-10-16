@@ -1,0 +1,24 @@
+/*
+ * 360 Mouse v1, small-battery copy (~150 mAh).
+ * Same wiring as v1; trades polling rate for battery life.
+ */
+
+#include "360_mouse_v1.overlay"
+
+&trackball {
+    /delete-property/ force-awake;
+    /delete-property/ force-awake-4ms-mode;
+};
+
+&anin0 {
+    sampling-hz = <100>;
+};
+
+/* keep scroll speed equal to v1 at 100 Hz instead of 250 Hz */
+&x_ch {
+    scale-divisor = <12000>;
+};
+
+&y_ch {
+    scale-divisor = <12000>;
+};
