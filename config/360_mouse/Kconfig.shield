@@ -1,8 +1,9 @@
 config SHIELD_360_MOUSE_V1
     def_bool $(shields_list_contains,360_mouse_v1)
 
-config SHIELD_360_MOUSE_V1_SMALL
-    def_bool $(shields_list_contains,360_mouse_v1_small)
-
 config SHIELD_360_MOUSE_V2
     def_bool $(shields_list_contains,360_mouse_v2)
+
+# add-on: ./build.sh v1 debug  ->  SHIELD="360_mouse_v1 360_mouse_debug"
+config SHIELD_360_MOUSE_DEBUG
+    def_bool $(shields_list_contains,360_mouse_debug)

@@ -1,0 +1,4 @@
+/*
+ * Debug add-on shield. Adds no hardware; it exists so its .conf (USB logging)
+ * can be stacked on a variant:  ./build.sh v1 debug
+ */

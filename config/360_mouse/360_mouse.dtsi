@@ -47,9 +47,18 @@
     };
 
     /* the trackball node itself is defined in each variant (pins differ) */
-    trackball_listener {
+    trackball_listener: trackball_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>;
+        input-processors = <&ble_throttle>;
+    };
+
+    /* Over Bluetooth, merge pointer and scroll reports to one per 8 ms
+       (125/s). USB is untouched (sensor 250 Hz). Buttons never delayed. */
+    ble_throttle: ble_throttle {
+        compatible = "zmk,input-processor-ble-throttle";
+        #input-processor-cells = <0>;
+        period-ms = <8>;
     };
 
 #include <dt-bindings/zmk/keys.h>   /* after the matrix map: keys.h redefines RC() */
@@ -62,7 +71,7 @@
            variant uses the same pin. A mouse whose pots are still on 3.3 V
            just toggles an unconnected pin - harmless. */
         power-gpios = <&gpio0 9 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_H0H1)>;
-        mv-top = <3200>;           /* re-measure on a gated mouse, see README */
+        mv-top = <3200>;           /* GPIO-fed pot tops out below 3.3 V; 3200 tested */
         game-layer = <2>;          /* joystick sends WASD while layer 2 is on */
         x_ch: x-ch {
             mv-min-max = <1450>;
@@ -89,6 +98,7 @@
     anin0_listener: anin0_listener {
         compatible = "zmk,input-listener";
         device = <&anin0>;
+        input-processors = <&ble_throttle>;
     };
 
     vbatt: vbatt {
