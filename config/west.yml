@@ -57,7 +57,7 @@ manifest:
     - name: zmk-input-processor-keybind
       remote: te9no
       revision: main
-    - name: zmk-led-indicator
+    - name: zmk-360-mouse-extras
       remote: northwestisthebest
       revision: main
   self:
